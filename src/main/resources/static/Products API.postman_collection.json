@@ -1,0 +1,169 @@
+{
+	"info": {
+		"name": "Products API",
+		"schema": "https://schema.postman.com/json/collection/v2.1.0/collection.json",
+		"description": "API de inventario de productos — Spring Boot 4.0.6 / Java 21\n\n## Flujo de uso\n\n1. Hacer **POST /auth/registro** para crear un usuario\n2. Hacer **POST /auth/login** (el token se guarda automáticamente en la variable `token`)\n3. Consumir los endpoints protegidos de **Empresas** y **Productos**"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Registro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombres\": \"Admin\",\n  \"apellidos\": \"Sistema\",\n  \"email\": \"admin@mail.com\",\n  \"telefono\": \"3001234567\",\n  \"password\": \"admin123\",\n  \"rolId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/registro",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "registro"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@mail.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token', json.token);",
+									"    console.log('Token guardado: ' + json.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Empresas",
+			"item": [
+				{
+					"name": "Crear Empresa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nit\": \"900123456-7\",\n  \"nombre\": \"Mi Empresa SAS\",\n  \"direccion\": \"Calle 123 #45-67\",\n  \"telefono\": \"6012345678\",\n  \"email\": \"contacto@empresa.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/empresas",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "empresas"]
+						}
+					}
+				},
+				{
+					"name": "Listar Productos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/empresas/900123456-7/productos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "empresas", "900123456-7", "productos"]
+						}
+					}
+				},
+				{
+					"name": "Descargar Inventario PDF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/empresas/900123456-7/productos/pdf",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "empresas", "900123456-7", "productos", "pdf"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Productos",
+			"item": [
+				{
+					"name": "Crear Producto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombreProducto\": \"Laptop Gamer\",\n  \"caracteristicas\": \"16GB RAM, 1TB SSD, RTX 4060\",\n  \"precio\": 4500000,\n  \"empresaNit\": \"900123456-7\",\n  \"idCategoria\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/productos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "productos"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
