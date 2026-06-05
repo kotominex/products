@@ -1,0 +1,38 @@
+steps:
+  - name: maven:3.9-eclipse-temurin-21
+    entrypoint: mvn
+    args:
+      - clean
+      - package
+      - -DskipTests
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - us-central1-docker.pkg.dev/$PROJECT_ID/products/spring-boot-backend:$SHORT_SHA
+      - .
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - us-central1-docker.pkg.dev/$PROJECT_ID/products/spring-boot-backend:$SHORT_SHA
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - products-api
+      - --image=us-central1-docker.pkg.dev/$PROJECT_ID/products/spring-boot-backend:$SHORT_SHA
+      - --platform=managed
+      - --region=us-central1
+      - --add-cloudsql-instances=$PROJECT_ID:us-central1:products-db
+      - --set-env-vars=DB_NAME=products,DB_USER=liteThinking,CLOUD_SQL_INSTANCE=$PROJECT_ID:us-central1:products-db,SPRING_PROFILES_ACTIVE=cloud
+      - --set-secrets=DB_PASS=DB_PASSWORD:latest,JWT_SECRET=JWT_SECRET:latest,TASA_COP_USD=TASA_COP_USD:latest,TASA_COP_EUR=TASA_COP_EUR:latest
+      - --allow-unauthenticated
+      - --memory=512Mi
+      - --cpu=1
+      - --min-instances=0
+      - --max-instances=10
+      - --concurrency=80
+      - --timeout=300
+images:
+  - us-central1-docker.pkg.dev/$PROJECT_ID/products/spring-boot-backend:$SHORT_SHA

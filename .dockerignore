@@ -1,0 +1,11 @@
+HELP.md
+.git/
+.gitattributes
+.gitignore
+.idea/
+.mvn/wrapper/maven-wrapper.jar
+target/
+*.md
+*.bat
+*.cmd
+.DS_Store
